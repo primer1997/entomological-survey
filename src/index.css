@@ -174,17 +174,16 @@ table.reg td.tt { font-weight: 800; background: #f3f4f6; }
 }
 .sel-check input { width: 19px; height: 19px; accent-color: var(--green); }
 
-/* ============ PAIR PAGE (2 days on one A4 landscape sheet) ============ */
+/* ============ PAIR PAGE (2 days stacked on one A4 portrait sheet) ============ */
 .pair-page {
-  width: 1123px; height: 794px; background: #fff;
-  display: flex; gap: 18px; padding: 16px 18px;
+  width: 794px; height: 1123px; background: #fff;
+  display: flex; flex-direction: column; gap: 20px; padding: 26px 30px;
 }
-.pair-page .sheet { flex: 1; width: auto; padding: 14px 12px 10px; }
-.pair-page .sheet h1 { font-size: 20px; }
-.pair-page .sheet .sub { font-size: 11px; margin-bottom: 8px; }
-.pair-page .sheet .meta { font-size: 12.3px; flex-wrap: wrap; row-gap: 3px; margin-bottom: 6px; }
-.pair-page table.reg th { font-size: 10.6px; line-height: 1.25; padding: 4px 3px; }
-.pair-page table.reg td { font-size: 12.3px; height: 25.5px; padding: 2px 4px; }
-.pair-page .sheet .indices { margin-top: 12px; flex-wrap: wrap; row-gap: 5px; }
-.pair-page .sheet .idx { font-size: 12px; gap: 4px; }
-.pair-page .frac .fn, .pair-page .frac .fd { padding: 0 4px; }
+.pair-page .sheet { flex: 1; width: auto; padding: 4px 2px 0; }
+.pair-page .sheet.stacked h1 { font-size: 20px; }
+.pair-page .sheet.stacked .sub { font-size: 11px; margin-bottom: 6px; }
+.pair-page .sheet.stacked .meta { font-size: 12.5px; margin-bottom: 5px; }
+.pair-page table.reg th { font-size: 10.8px; line-height: 1.25; padding: 4px 3px; }
+.pair-page table.reg td { font-size: 12.5px; height: 24px; padding: 2px 4px; }
+.pair-page .sheet.stacked .indices { margin-top: 10px; }
+.pair-page .sheet.stacked .idx { font-size: 12.5px; }

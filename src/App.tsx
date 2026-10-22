@@ -86,19 +86,19 @@ const COLS = [
 ]
 const ROWS_PER_SHEET = 15
 
-function Sheet({ page, rows, pageNo, pageCount, showIndices, half }: {
+function Sheet({ page, rows, pageNo, pageCount, showIndices, stacked }: {
   page: SurveyPage
   rows: RowEntry[]
   pageNo: number
   pageCount: number
   showIndices: boolean
-  half?: boolean
+  stacked?: boolean
 }) {
   const c = calc(page.rows)
   const padded = [...rows]
   while (padded.length < ROWS_PER_SHEET) padded.push(emptyRow())
   return (
-    <div className={half ? 'sheet half' : 'sheet'}>
+    <div className={stacked ? 'sheet stacked' : 'sheet'}>
       <h1>दैनिक किटकशास्त्रीय सर्वेक्षण</h1>
       <div className="sub">Daily Entomological Survey</div>
       <div className="meta">
@@ -306,13 +306,13 @@ export default function App() {
       const host = pairHostRef.current
       if (!host) return
       const pageEls = host.querySelectorAll('.pair-page')
-      const pdf = new jsPDF('l', 'mm', 'a4')
+      const pdf = new jsPDF('p', 'mm', 'a4')
       for (let i = 0; i < pageEls.length; i++) {
         const canvas = await html2canvas(pageEls[i] as HTMLElement, { scale: 2, backgroundColor: '#ffffff' })
         const img = canvas.toDataURL('image/jpeg', 0.95)
-        const h = (297 * canvas.height) / canvas.width
+        const h = (210 * canvas.height) / canvas.width
         if (i > 0) pdf.addPage()
-        pdf.addImage(img, 'JPEG', 0, 0, 297, h)
+        pdf.addImage(img, 'JPEG', 0, 0, 210, h)
       }
       pdf.save(`kitak-survey-${chosen[0].date}-${chosen[1].date}.pdf`)
     } finally {
@@ -334,7 +334,7 @@ export default function App() {
     return chunks
   }, [pdfTarget])
 
-  /* forms for the 2-days-on-one-page (landscape) PDF */
+  /* forms for the 2-days-on-one-page (portrait) PDF */
   const pairPages = useMemo(() => {
     if (!pdfPair) return []
     interface Form { page: SurveyPage; rows: RowEntry[]; chunkNo: number; chunkCount: number; showIndices: boolean }
@@ -538,7 +538,7 @@ export default function App() {
           ))}
       </div>
 
-      {/* off-screen landscape pages: 2 days side by side, like the open register */}
+      {/* off-screen portrait pages: 2 days stacked on one A4 sheet */}
       <div className="sheet-host" ref={pairHostRef}>
         {pdfPair &&
           pairPages.map((forms, pi) => (
@@ -551,10 +551,10 @@ export default function App() {
                   pageNo={f.chunkNo}
                   pageCount={f.chunkCount}
                   showIndices={f.showIndices}
-                  half
+                  stacked
                 />
               ))}
-              {forms.length === 1 && <div className="sheet half" />}
+              {forms.length === 1 && <div className="sheet stacked" />}
             </div>
           ))}
       </div>
