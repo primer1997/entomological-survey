@@ -86,18 +86,19 @@ const COLS = [
 ]
 const ROWS_PER_SHEET = 15
 
-function Sheet({ page, rows, pageNo, pageCount, showIndices }: {
+function Sheet({ page, rows, pageNo, pageCount, showIndices, half }: {
   page: SurveyPage
   rows: RowEntry[]
   pageNo: number
   pageCount: number
   showIndices: boolean
+  half?: boolean
 }) {
   const c = calc(page.rows)
   const padded = [...rows]
   while (padded.length < ROWS_PER_SHEET) padded.push(emptyRow())
   return (
-    <div className="sheet">
+    <div className={half ? 'sheet half' : 'sheet'}>
       <h1>दैनिक किटकशास्त्रीय सर्वेक्षण</h1>
       <div className="sub">Daily Entomological Survey</div>
       <div className="meta">
@@ -162,8 +163,11 @@ export default function App() {
   const [pages, setPages] = useState<SurveyPage[]>(loadPages)
   const [savedNote, setSavedNote] = useState('')
   const [pdfTarget, setPdfTarget] = useState<SurveyPage | null>(null)
+  const [pdfPair, setPdfPair] = useState<SurveyPage[] | null>(null)
+  const [selected, setSelected] = useState<string[]>([])
   const [pdfBusy, setPdfBusy] = useState(false)
   const sheetHostRef = useRef<HTMLDivElement>(null)
+  const pairHostRef = useRef<HTMLDivElement>(null)
 
   const [draft, setDraft] = useState<SurveyPage>(() => {
     try {
@@ -280,6 +284,43 @@ export default function App() {
     }
   }
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id)
+      if (prev.length >= 2) return prev
+      return [...prev, id]
+    })
+  }
+
+  const exportPairPDF = async () => {
+    if (pdfBusy || selected.length !== 2) return
+    const chosen = selected
+      .map((id) => pages.find((p) => p.id === id))
+      .filter((p): p is SurveyPage => !!p)
+      .sort((a, b) => a.date.localeCompare(b.date))
+    if (chosen.length !== 2) return
+    setPdfBusy(true)
+    setPdfPair(chosen)
+    try {
+      await new Promise((r) => setTimeout(r, 120))
+      const host = pairHostRef.current
+      if (!host) return
+      const pageEls = host.querySelectorAll('.pair-page')
+      const pdf = new jsPDF('l', 'mm', 'a4')
+      for (let i = 0; i < pageEls.length; i++) {
+        const canvas = await html2canvas(pageEls[i] as HTMLElement, { scale: 2, backgroundColor: '#ffffff' })
+        const img = canvas.toDataURL('image/jpeg', 0.95)
+        const h = (297 * canvas.height) / canvas.width
+        if (i > 0) pdf.addPage()
+        pdf.addImage(img, 'JPEG', 0, 0, 297, h)
+      }
+      pdf.save(`kitak-survey-${chosen[0].date}-${chosen[1].date}.pdf`)
+    } finally {
+      setPdfPair(null)
+      setPdfBusy(false)
+    }
+  }
+
   const sortedPages = useMemo(
     () => [...pages].sort((a, b) => (b.date + b.updatedAt).localeCompare(a.date + a.updatedAt)),
     [pages],
@@ -292,6 +333,22 @@ export default function App() {
     if (!chunks.length) chunks.push([])
     return chunks
   }, [pdfTarget])
+
+  /* forms for the 2-days-on-one-page (landscape) PDF */
+  const pairPages = useMemo(() => {
+    if (!pdfPair) return []
+    interface Form { page: SurveyPage; rows: RowEntry[]; chunkNo: number; chunkCount: number; showIndices: boolean }
+    const forms: Form[] = []
+    for (const pg of pdfPair) {
+      const chunks: RowEntry[][] = []
+      for (let i = 0; i < pg.rows.length; i += ROWS_PER_SHEET) chunks.push(pg.rows.slice(i, i + ROWS_PER_SHEET))
+      if (!chunks.length) chunks.push([])
+      chunks.forEach((rows, i) => forms.push({ page: pg, rows, chunkNo: i + 1, chunkCount: chunks.length, showIndices: i === chunks.length - 1 }))
+    }
+    const grouped: Form[][] = []
+    for (let i = 0; i < forms.length; i += 2) grouped.push(forms.slice(i, i + 2))
+    return grouped
+  }, [pdfPair])
 
   return (
     <div className="app">
@@ -417,11 +474,31 @@ export default function App() {
           <div className="btn-row" style={{ marginBottom: 12 }}>
             <button className="btn btn-green" onClick={newPage}>+ नवीन नोंद</button>
           </div>
+          {sortedPages.length >= 2 && (
+            <div className="selbar">
+              {selected.length === 0 && <span>रजिस्टरसारखे <b>२ दिवस एका पानावर</b> छापायचे असतील तर खाली दोन नोंदी निवडा.</span>}
+              {selected.length === 1 && <span><b>१ दिवस निवडला.</b> आणखी एक दिवस निवडा.</span>}
+              {selected.length === 2 && <span><b>२ दिवस निवडले.</b></span>}
+              {selected.length === 2 && (
+                <button className="btn btn-amber" onClick={exportPairPDF} disabled={pdfBusy}>
+                  {pdfBusy ? 'PDF तयार होत आहे…' : 'एका पानावर PDF (२ दिवस)'}
+                </button>
+              )}
+              {selected.length > 0 && (
+                <button className="btn btn-ghost" onClick={() => setSelected([])}>निवड रद्द करा</button>
+              )}
+            </div>
+          )}
           {sortedPages.length === 0 && <div className="card empty">अद्याप एकही नोंद जतन केलेली नाही.<br />"नोंदणी" मध्ये जाऊन पहिली नोंद भरा.</div>}
           {sortedPages.map((p) => {
             const c = calc(p.rows)
+            const isSel = selected.includes(p.id)
             return (
-              <div className="card" key={p.id}>
+              <div className={`card ${isSel ? 'selected' : ''}`} key={p.id}>
+                <label className="sel-check">
+                  <input type="checkbox" checked={isSel} onChange={() => toggleSelect(p.id)} />
+                  <span>एका पानावरील PDF साठी निवडा</span>
+                </label>
                 <button className="rec-card" onClick={() => openPage(p)}>
                   <span className="rec-head">
                     <span className="rec-village">{p.village}</span>
@@ -458,6 +535,27 @@ export default function App() {
               pageCount={pdfSheets.length}
               showIndices={i === pdfSheets.length - 1}
             />
+          ))}
+      </div>
+
+      {/* off-screen landscape pages: 2 days side by side, like the open register */}
+      <div className="sheet-host" ref={pairHostRef}>
+        {pdfPair &&
+          pairPages.map((forms, pi) => (
+            <div className="pair-page" key={pi}>
+              {forms.map((f, fi) => (
+                <Sheet
+                  key={fi}
+                  page={f.page}
+                  rows={f.rows}
+                  pageNo={f.chunkNo}
+                  pageCount={f.chunkCount}
+                  showIndices={f.showIndices}
+                  half
+                />
+              ))}
+              {forms.length === 1 && <div className="sheet half" />}
+            </div>
           ))}
       </div>
     </div>
