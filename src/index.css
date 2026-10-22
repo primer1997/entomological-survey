@@ -1,0 +1,159 @@
+/* ============ दैनिक किटकशास्त्रीय सर्वेक्षण app ============ */
+:root {
+  --bg: #f2f7f2;
+  --card: #ffffff;
+  --ink: #14231a;
+  --muted: #5b6b5f;
+  --line: #d9e4da;
+  --green: #166534;
+  --green-d: #14532d;
+  --green-bg: #f0fdf4;
+  --amber: #b45309;
+  --amber-bg: #fffbeb;
+  --red: #b91c1c;
+  --red-bg: #fef2f2;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Mukta', 'Noto Sans Devanagari', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+}
+.app { min-height: 100vh; padding-bottom: 96px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: linear-gradient(135deg, #166534, #14532d);
+  color: #fff; padding: 12px 16px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+.brand { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; }
+.brand-mark {
+  width: 42px; height: 42px; border-radius: 12px; flex: none;
+  background: #fbbf24; color: #14532d;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 21px;
+}
+.brand-title { font-weight: 700; font-size: 18px; line-height: 1.15; }
+.brand-sub { font-size: 12px; opacity: .85; }
+.tabs { display: flex; gap: 6px; }
+.tabs button {
+  flex: 1; border: none; cursor: pointer;
+  background: rgba(255,255,255,.14); color: #fff;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  padding: 9px 4px; border-radius: 10px 10px 0 0;
+}
+.tabs button.active { background: var(--bg); color: var(--green-d); }
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 14px 12px 0; }
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px; margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(20,35,26,.05);
+}
+.card h3 { margin: 0 0 10px; font-size: 16px; color: var(--green-d); }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .grid3 { grid-template-columns: 1fr 1fr; } }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.field input, .field select {
+  width: 100%; padding: 10px 11px; font-size: 16px; font-family: inherit;
+  border: 1.5px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink);
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--green); }
+
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table.entry { border-collapse: collapse; width: 100%; min-width: 760px; }
+table.entry th {
+  background: var(--green-bg); color: var(--green-d);
+  font-size: 12.5px; line-height: 1.25; padding: 8px 6px;
+  border-bottom: 1.5px solid var(--line); border-right: 1px solid var(--line);
+  vertical-align: bottom;
+}
+table.entry th:last-child { border-right: none; }
+table.entry td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); padding: 4px; }
+table.entry td:last-child { border-right: none; }
+table.entry tr:last-child td { border-bottom: none; }
+table.entry td.sno { text-align: center; color: var(--muted); font-weight: 700; width: 38px; }
+table.entry input {
+  width: 100%; border: none; background: transparent; font-family: inherit;
+  font-size: 15.5px; padding: 7px 6px; color: var(--ink); text-align: center;
+}
+table.entry input.name { text-align: left; min-width: 150px; }
+table.entry input:focus { outline: 2px solid var(--green); outline-offset: -2px; border-radius: 6px; background: #fff; }
+table.entry tr.positive-row { background: #fff7ed; }
+.row-del {
+  border: none; background: var(--red-bg); color: var(--red); cursor: pointer;
+  width: 30px; height: 30px; border-radius: 8px; font-size: 15px; line-height: 1;
+}
+td.del-cell { width: 40px; text-align: center; }
+
+.btn {
+  border: none; cursor: pointer; font-family: inherit; font-weight: 700;
+  border-radius: 11px; padding: 11px 16px; font-size: 15px;
+  display: inline-flex; align-items: center; gap: 7px; justify-content: center;
+}
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:active { background: var(--green-d); }
+.btn-ghost { background: #fff; color: var(--green-d); border: 1.5px solid var(--line); }
+.btn-amber { background: #f59e0b; color: #fff; }
+.btn-red-ghost { background: #fff; color: var(--red); border: 1.5px solid #fecaca; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-row .btn { flex: 1; min-width: 130px; }
+
+.totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 560px) { .totals { grid-template-columns: repeat(2, 1fr); } }
+.total-box { background: var(--green-bg); border: 1px solid var(--line); border-radius: 11px; padding: 8px 10px; }
+.total-box .t-label { font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.25; }
+.total-box .t-value { font-size: 21px; font-weight: 800; color: var(--green-d); }
+
+.index-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 560px) { .index-grid { grid-template-columns: 1fr; } }
+.index-box { border: 1.5px solid var(--green); border-radius: 12px; padding: 10px 12px; background: #fff; }
+.index-box .i-name { font-weight: 800; color: var(--green-d); font-size: 15px; }
+.index-box .i-frac { color: var(--muted); font-size: 13.5px; margin: 2px 0; }
+.index-box .i-val { font-size: 24px; font-weight: 800; }
+.index-box.risk .i-val { color: var(--red); }
+.index-box.safe .i-val { color: var(--green); }
+
+.rec-card { display: block; width: 100%; text-align: left; cursor: pointer; font-family: inherit; }
+.rec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.rec-village { font-size: 17px; font-weight: 800; color: var(--ink); }
+.rec-date { font-size: 13.5px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.rec-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+.chip { font-size: 12.5px; font-weight: 700; background: var(--green-bg); color: var(--green-d); border: 1px solid var(--line); padding: 3px 9px; border-radius: 999px; }
+.chip.warn { background: var(--amber-bg); color: var(--amber); border-color: #fde68a; }
+.empty { text-align: center; color: var(--muted); padding: 34px 12px; font-size: 15px; }
+.saved-note { background: var(--green-bg); border: 1px solid #bbf7d0; color: var(--green-d); font-weight: 700; border-radius: 11px; padding: 9px 12px; margin-bottom: 12px; font-size: 14.5px; }
+.hint { font-size: 12.5px; color: var(--muted); margin-top: 8px; line-height: 1.45; }
+
+/* ============ PRINT SHEET (register replica) ============ */
+.sheet-host { position: fixed; left: -10000px; top: 0; }
+.sheet {
+  width: 794px; background: #fff; color: #000;
+  padding: 34px 36px 30px;
+  font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif;
+}
+.sheet h1 { text-align: center; font-size: 25px; margin: 0 0 4px; font-weight: 800; }
+.sheet .sub { text-align: center; font-size: 13px; margin-bottom: 12px; }
+.sheet .meta { display: flex; justify-content: space-between; gap: 10px; font-size: 15.5px; margin-bottom: 8px; }
+.sheet .meta b { font-weight: 700; }
+.sheet .meta .fill { border-bottom: 1.5px dotted #000; padding: 0 6px; }
+table.reg { border-collapse: collapse; width: 100%; }
+table.reg th, table.reg td { border: 1.6px solid #000; }
+table.reg th { font-size: 12.8px; line-height: 1.3; padding: 6px 4px; vertical-align: middle; font-weight: 700; }
+table.reg td { font-size: 14.5px; padding: 4px 6px; height: 30px; text-align: center; }
+table.reg td.nm { text-align: left; }
+table.reg td.tt { font-weight: 800; background: #f3f4f6; }
+.sheet .indices { display: flex; justify-content: space-between; gap: 8px; margin-top: 20px; }
+.sheet .idx { font-size: 15.5px; display: flex; align-items: center; gap: 6px; }
+.sheet .idx .nm2 { font-weight: 800; white-space: nowrap; }
+.frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; }
+.frac .fn { padding: 0 7px; }
+.frac .fd { border-top: 1.8px solid #000; padding: 0 7px; }
+.sheet .idx .res { font-weight: 800; white-space: nowrap; }
+.sheet .foot { margin-top: 26px; display: flex; justify-content: space-between; font-size: 14px; }
