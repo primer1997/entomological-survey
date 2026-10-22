@@ -84,7 +84,7 @@ const COLS = [
   { label: 'डास, अळ्या आढळून आलेले कंटेनरची संख्या', w: '15%' },
   { label: 'रिकामे केलेल्या कंटेनरची संख्या', w: '12%' },
 ]
-const ROWS_PER_SHEET = 15
+const ROWS_PER_SHEET = 9
 
 function Sheet({ page, rows, pageNo, pageCount, showIndices, stacked }: {
   page: SurveyPage
@@ -183,7 +183,7 @@ export default function App() {
       village: profile.village || '',
       population: profile.population || '',
       date: todayISO(),
-      rows: blankRows(10),
+      rows: blankRows(9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -202,7 +202,7 @@ export default function App() {
     setDraft((d) => ({ ...d, rows: d.rows.map((r) => (r.id === id ? { ...r, [key]: value } : r)) }))
   }
   const addRow = () => setDraft((d) => ({ ...d, rows: [...d.rows, emptyRow()] }))
-  const add10Rows = () => setDraft((d) => ({ ...d, rows: [...d.rows, ...blankRows(10)] }))
+  const add9Rows = () => setDraft((d) => ({ ...d, rows: [...d.rows, ...blankRows(9)] }))
   const delRow = (id: string) => setDraft((d) => ({ ...d, rows: d.rows.filter((r) => r.id !== id) }))
 
   const newPage = () => {
@@ -216,7 +216,7 @@ export default function App() {
       village: profile.village || '',
       population: profile.population || '',
       date: todayISO(),
-      rows: blankRows(10),
+      rows: blankRows(9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     })
@@ -249,7 +249,7 @@ export default function App() {
   }
 
   const openPage = (p: SurveyPage) => {
-    setDraft({ ...p, rows: p.rows.length ? p.rows : blankRows(10) })
+    setDraft({ ...p, rows: p.rows.length ? p.rows : blankRows(9) })
     setSavedNote('')
     setTab('entry')
     window.scrollTo({ top: 0 })
@@ -422,7 +422,7 @@ export default function App() {
             </div>
             <div className="btn-row" style={{ marginTop: 10 }}>
               <button className="btn btn-ghost" onClick={addRow}>+ एक ओळ वाढवा</button>
-              <button className="btn btn-ghost" onClick={add10Rows}>+ १० ओळी वाढवा</button>
+              <button className="btn btn-ghost" onClick={add9Rows}>+ ९ ओळी वाढवा</button>
             </div>
             <div className="hint">ज्या घरात डास/अळ्या आढळतील ती ओळ आपोआप ठळक दिसेल. रिकाम्या ओळी जतन करताना वगळल्या जातात.</div>
           </div>
